@@ -35,7 +35,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['.map']
 # Application definition
 
 INSTALLED_APPS = [
