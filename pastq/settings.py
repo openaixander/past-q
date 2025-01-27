@@ -63,7 +63,6 @@ AUTHENTICATION_BACKENDS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -152,12 +151,11 @@ if not DEBUG:    # Tell Django to copy static assets into a path called `staticf
     # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     
-STATIC_ROOT = 'media/files'
-
-
 STATICFILES_URL = [
     BASE_DIR / 'static'
 ]
+
+WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
 
 MEDIA_URL = '/media/'
@@ -199,4 +197,4 @@ cloudinary.config(
 
 # Configure media files to use Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+

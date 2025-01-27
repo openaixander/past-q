@@ -6,3 +6,4 @@ media/
 migrations/
 .env
 media/
+staticfiles/
