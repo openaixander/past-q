@@ -11,7 +11,7 @@ click-plugins==1.1.1
 click-repl==0.3.0
 cloudinary==1.42.1
 dj-database-url==2.3.0
-Django==4.2.15
+Django==4.2.*
 django-cloudinary-storage==0.3.0
 django-jazzmin==3.0.0
 gunicorn==23.0.0
