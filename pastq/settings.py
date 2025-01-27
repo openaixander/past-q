@@ -156,11 +156,6 @@ if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-STATICFILES_URL = [
-    BASE_DIR / 'static'
-]
-
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/images'
 
