@@ -13,7 +13,6 @@ cloudinary==1.42.1
 dj-database-url==2.3.0
 Django==4.2.*
 django-cloudinary-storage==0.3.0
-django-jazzmin==3.*
 gunicorn==23.0.0
 h11==0.14.0
 idna==3.8
