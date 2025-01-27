@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'faculty',
     'quiz',
-    'jazzmin',
+    # 'jazzmin',
     'cloudinary_storage',
 
     # default apps
