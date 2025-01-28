@@ -111,8 +111,6 @@ DATABASES = {
     )
 }
 
-WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ('.map',)
-WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
 
 # Password validation
