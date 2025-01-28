@@ -154,11 +154,6 @@ if not DEBUG:
     # Use the simpler storage backend that doesn't require manifests
     STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage' 
 
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/images'
 
