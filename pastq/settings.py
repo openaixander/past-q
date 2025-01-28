@@ -110,6 +110,11 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ('.map',)
+WHITENOISE_KEEP_ONLY_HASHED_FILES = False
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
