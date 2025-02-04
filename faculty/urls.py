@@ -9,11 +9,9 @@ urlpatterns = [
     path('choice/', views.choice, name='choice'),
     path('about-pastq/', views.about_pastq, name='about_pastq'),
     path('student-dashboard/', views.student_dashboard, name='student_dashboard'),
-    path('view-or-download-pastq/', views.view_or_download_pastq, name='view_or_download_pastq'),
-    path('process-past-question-form/', views.process_past_question_form, name='process_past_question_form'),
-    path('view-past-question/<int:pk>/', views.view_past_question, name='view_past_question'),
-    path('no-past-question-found/', views.no_past_question_found, name='no_past_question_found'),
+    path('search-past-questions/', views.search_past_questions, name='search_past_questions'),
     path('download-pastq-images/<int:pk>/', views.download_pastq_images, name='download_pastq_images'),
+    
 
 
     path('search-materials/', views.download_materials, name='download_materials'),
