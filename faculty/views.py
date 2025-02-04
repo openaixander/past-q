@@ -39,93 +39,53 @@ def student_dashboard(request):
 
 
 def view_or_download_pastq(request):
-    # Fetch all departments, levels, semesters, and years
-    departments = Department.objects.all()
-    levels = Level.objects.all()
-    semesters = Semester.objects.all()
-    sessions = Session.objects.all().order_by('-value')  # Newest years first
-
-    # Initialize courses queryset
-    courses = Course.objects.none()
-
-    # Check if form data is submitted
-    if request.method == 'POST':
-        department_id = request.POST.get('department')
-        level_id = request.POST.get('level')
-        semester_id = request.POST.get('semester')
-
-        # Filter courses based on selected criteria
-        courses = Course.objects.filter(
-            departments__id=department_id,
-            levels__id=level_id,
-            semesters__id=semester_id
-        )
-
-        # If it's an AJAX request, return filtered courses as JSON
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            courses_data = serialize('json', courses, fields=('id', 'code', 'name'))
-            return JsonResponse({'courses': courses_data})
-
-    # Serialize all courses for initial page load
-    all_courses_json = serialize('json', Course.objects.all(), fields=('id', 'code', 'name'))
+    # Get all past questions with related fields
+    past_questions = PastQuestion.objects.select_related(
+        'course', 
+        'year'
+    ).prefetch_related(
+        'images',  # Prefetch related images
+        'course__levels',
+        'course__semesters'
+    ).all()
 
     context = {
-        'departments': departments,
-        'levels': levels,
-        'semesters': semesters,
-        'years': sessions,
-        'courses': courses,
-        'all_courses_json': all_courses_json,
+        'past_questions': past_questions,
     }
-
     return render(request, 'faculty/view_or_download_pastq.html', context)
 
-def process_past_question_form(request):
-    if request.method == 'POST':
-        course_id = request.POST.get('course')
-        year_id = request.POST.get('year')
-        
-        # Debug print statements
-        # print(f"Received course_id: {course_id}, year_id: {year_id}")
+def search_past_questions(request):
+    query = request.GET.get('q', '')
+    if query:
+        results = PastQuestion.objects.select_related(
+            'course', 
+            'year'
+        ).prefetch_related(
+            'images',
+            'course__levels',
+            'course__semesters'
+        ).filter(
+            course__code__icontains=query
+        ) | PastQuestion.objects.select_related(
+            'course', 
+            'year'
+        ).filter(
+            course__name__icontains=query
+        )
+    else:
+        results = PastQuestion.objects.none()
 
-        try:
-            course = Course.objects.get(id=course_id)
-            year = Session.objects.get(id=year_id)  # Change this line
-            
-            # Debug print statements
-            print(f"Found course: {course}, year: {year}")
+    data = [{
+        'id': pq.id,
+        'course_code': pq.course.code,
+        'course_name': pq.course.name,
+        'levels': ', '.join([f"Level {level.value}" for level in pq.course.levels.all()]),
+        'semesters': ', '.join([sem.name for sem in pq.course.semesters.all()]),
+        'year': str(pq.year),
+        'has_images': pq.images.exists(),
+    } for pq in results]
 
-            past_question = PastQuestion.objects.filter(course=course, year=year).first()
-            
-            if past_question:
-                return redirect(reverse('faculty:view_past_question', kwargs={'pk': past_question.pk}))
-            else:
-                # Show that pastq does not exist
-                return render(request, 'faculty/no_past_question_found.html', {'course': course, 'year': year})
-        
-        except Course.DoesNotExist:
-            print(f"Course with id {course_id} does not exist")
-            return render(request, 'faculty/error.html', {'message': 'Selected course does not exist.'})
-        
-        except Session.DoesNotExist:
-            print(f"Session with id {year_id} does not exist")
-            return render(request, 'faculty/error.html', {'message': 'Selected year does not exist.'})
-        
-        except Exception as e:
-            print(f"Unexpected error: {str(e)}")
-            return render(request, 'faculty/error.html', {'message': 'An unexpected error occurred.'})
-
-    # If not POST, redirect to the form page
-    return redirect('faculty:view_or_download_pastq')
-
-
-def view_past_question(request, pk):
-    past_question = get_object_or_404(PastQuestion, pk=pk)
-
-    context = {
-        'past_question':past_question
-    }
-    return render(request, 'faculty/view_past_question.html', context)
+    return JsonResponse({'results': data})
 
 def download_pastq_images(request, pk):
     """Download all images for a past question as a zip file"""
@@ -155,8 +115,38 @@ def download_pastq_images(request, pk):
     
     return response
 
-def no_past_question_found(request):
-    return render(request, 'faculty/no_past_question_found.html')
+def download_pastq_images(request, pk):
+    """Download all images for a past question as a zip file"""
+    past_question = get_object_or_404(PastQuestion.objects.select_related('course', 'year'), pk=pk)
+    images = past_question.images.all()
+
+    if not images:
+        return JsonResponse({'error': 'No images available for download'}, status=404)
+
+    try:
+        # Create a zip file in memory
+        zip_buffer = BytesIO()
+        with ZipFile(zip_buffer, 'w') as zip_file:
+            for image in images:
+                if image.image:
+                    # Download from Cloudinary
+                    response = cloudinary.api.resource(image.image.public_id)
+                    image_url = response['secure_url']
+                    image_content = requests.get(image_url).content
+                    
+                    # Add to zip with proper filename
+                    filename = f"page_{image.page_number}{os.path.splitext(image.image.public_id)[1]}"
+                    zip_file.writestr(filename, image_content)
+
+        # Prepare the response
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{past_question.course.code}_pastq_{past_question.year.value}.zip"'
+        
+        return response
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def download_materials(request):
