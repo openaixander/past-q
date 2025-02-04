@@ -1,252 +1,316 @@
 {% extends 'faculty/base.html' %}
 
-{% block title %}
-
-View/Download Past Questions - pastq
-
-{% endblock title %}
+{% block title %}View Past Questions - pastq{% endblock title %}
 
 {% block css %}
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
-        .navbar {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-        }
-        .navbar-brand img {
-            height: 40px;
-            margin-right: 10px;
-        }
-        .search-form {
-            max-width: 300px;
-            margin-left: auto;
-        }
-        .search-form .form-control {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(106, 17, 203, 0.2);
-            color: #6a11cb;
-            border-radius: 20px 0 0 20px;
-        }
-        .search-form .form-control::placeholder {
-            color: rgba(106, 17, 203, 0.7);
-        }
-        .search-form .btn {
-            border-radius: 0 20px 20px 0;
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 80px 0;
-        }
-        .past-questions-form {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #6a11cb;
-        }
-        .form-select, .form-control {
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(106, 17, 203, 0.2);
-            color: #333;
-            transition: all 0.3s ease;
-        }
-        .form-select:focus, .form-control:focus {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
-            border-color: #6a11cb;
-        }
-        .btn-custom {
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-            border: none;
-            color: white;
-            padding: 10px 25px;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-        .btn-custom:hover {
-            transform: scale(1.05);
+
+        .search-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .footer {
+
+        .search-input {
+            border: 2px solid #6a11cb;
+            border-radius: 50px;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+            border-color: #2575fc;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .custom-table th {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .custom-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: rgba(106, 17, 203, 0.05);
+        }
+
+        .view-btn {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+        .download-btn {
+            background: linear-gradient(45deg, #2575fc 0%, #6a11cb 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .download-btn.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .download-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 20px 0;
-            margin-top: auto;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
         }
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
-        .past-questions-form {
-            animation: float 4s ease-in-out infinite;
-        }
-        @media (max-width: 991px) {
-            .search-form {
-                max-width: 100%;
-                margin-top: 15px;
+        @media (max-width: 768px) {
+            .custom-table {
+                font-size: 14px;
+            }
+            
+            .custom-table th,
+            .custom-table td {
+                padding: 10px;
             }
         }
 {% endblock css %}
 
 {% block content %}
-<div class="main-content">
-    <div class="container mt-5">
-        <form method="post" action="{% url 'faculty:process_past_question_form' %}" id="past-questions-form" class="past-questions-form">
-            {% csrf_token %}
-            <h2 class="text-center mb-4" style="color: #6a11cb;">View/Download Past Questions</h2>
+<div class="container mt-4">
+    <div class="search-container">
+        <input type="text" id="searchInput" class="form-control search-input" 
+               placeholder="Search by course code or title...">
+    </div>
 
-            <div class="mb-3">
-                <label for="department" class="form-label">Department</label>
-                <select name="department" id="department" class="form-select" required>
-                    <option value="">Select Department</option>
-                    {% for department in departments %}
-                        <option value="{{ department.id }}">{{ department.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="level" class="form-label">Level</label>
-                <select name="level" id="level" class="form-select" required>
-                    <option value="">Select Level</option>
-                    {% for level in levels %}
-                        <option value="{{ level.id }}">Level {{ level.value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="semester" class="form-label">Semester</label>
-                <select name="semester" id="semester" class="form-select" required>
-                    <option value="">Select Semester</option>
-                    {% for semester in semesters %}
-                        <option value="{{ semester.id }}">{{ semester.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="year" class="form-label">Session</label>
-                <select name="year" id="year" class="form-select" required>
-                    <option value="">Select Session</option>
-                    {% for year in years %}
-                        <option value="{{ year.id }}">{{ year }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="course" class="form-label">Course</label>
-                <select name="course" id="course" class="form-select" required>
-                    <option value="">Select Course</option>
-                    <!-- Courses will be dynamically populated here -->
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="course_code" class="form-label">Course Code</label>
-                <input type="text" name="course_code" id="course_code" class="form-control" readonly>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-custom">View Past Questions</button>
-            </div>
-        </form>
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>S/N</th>
+                    <th>Course Code</th>
+                    <th>Course Title</th>
+                    <th>Level</th>
+                    <th>Semester</th>
+                    <th>Session</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="pastQuestionsTableBody">
+                {% for pq in past_questions %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ pq.course.code }}</td>
+                    <td>{{ pq.course.name }}</td>
+                    <td>
+                        {% for level in pq.course.levels.all %}
+                            Level {{ level.value }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for semester in pq.course.semesters.all %}
+                            {{ semester.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ pq.year }}</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'faculty:view_past_question' pk=pq.id %}" 
+                           class="view-btn">View</a>
+                        {% if pq.images.exists %}
+                            <a href="{% url 'faculty:download_pastq_images' pk=pq.id %}" 
+                               class="download-btn" 
+                               onclick="return handleDownload(event, this)">
+                                Download
+                            </a>
+                        {% else %}
+                            <span class="download-btn disabled">No Files</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<div id="toastNotification" class="toast-notification"></div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('past-questions-form');
-        const departmentSelect = document.getElementById('department');
-        const levelSelect = document.getElementById('level');
-        const semesterSelect = document.getElementById('semester');
-        const yearSelect = document.getElementById('year');
-        const courseSelect = document.getElementById('course');
-        const courseCodeInput = document.getElementById('course_code');
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('pastQuestionsTableBody');
+    const toast = document.getElementById('toastNotification');
+    let timeoutId;
+
+    function showToast(message, duration = 3000) {
+        toast.textContent = message;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, duration);
+    }
+
+    async function handleDownload(event, element) {
+        event.preventDefault();
         
-        // Check if all elements exist
-        if (!form || !departmentSelect || !levelSelect || !semesterSelect || !yearSelect || !courseSelect || !courseCodeInput) {
-            console.error('One or more form elements are missing');
-            return;
-        }
-    
-        let allCourses = [];
+        // Show loading state
+        const originalContent = element.innerHTML;
+        element.innerHTML = '<span class="loading-spinner"></span>Downloading...';
+        element.style.pointerEvents = 'none';
+
         try {
-            allCourses = JSON.parse('{{ all_courses_json|safe }}');
-        } catch (error) {
-            console.error('Error parsing courses JSON:', error);
-        }
-    
-        function updateCourses() {
-            const department = departmentSelect.value;
-            const level = levelSelect.value;
-            const semester = semesterSelect.value;
-            const year = yearSelect.value;
-    
-            // Only proceed if all fields are selected
-            if (department && level && semester && year) {
-                const formData = new FormData(form);
-                fetch('{% url "faculty:view_or_download_pastq" %}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    allCourses = JSON.parse(data.courses);
-                    populateCourseSelect(allCourses);
-                })
-                .catch(error => {
-                    console.error('Error fetching courses:', error);
-                });
-            } else {
-                // Clear course select if not all fields are selected
-                courseSelect.innerHTML = '<option value="">Select Course</option>';
-                courseCodeInput.value = '';
+            const response = await fetch(element.href);
+            if (!response.ok) {
+                throw new Error('Download failed');
             }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = response.headers.get('content-disposition').split('filename=')[1].replace(/"/g, '');
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            showToast('Download completed successfully!');
+        } catch (error) {
+            showToast('Error downloading file. Please try again.');
+            console.error('Download error:', error);
+        } finally {
+            // Restore button state
+            element.innerHTML = originalContent;
+            element.style.pointerEvents = 'auto';
         }
-    
-        function populateCourseSelect(courses) {
-            courseSelect.innerHTML = '<option value="">Select Course</option>';
-            courses.forEach(course => {
-                const option = document.createElement('option');
-                option.value = course.pk;
-                option.textContent = `${course.fields.code} - ${course.fields.name}`;
-                courseSelect.appendChild(option);
-            });
-            courseCodeInput.value = '';
-        }
-    
-        // Add change event listeners to all select elements
-        [departmentSelect, levelSelect, semesterSelect, yearSelect].forEach(select => {
-            select.addEventListener('change', updateCourses);
-        });
-    
-        courseSelect.addEventListener('change', function() {
-            const selectedCourse = allCourses.find(course => course.pk == this.value);
-            courseCodeInput.value = selectedCourse ? selectedCourse.fields.code : '';
-        });
+
+        return false;
+    }
+
+    // Make handleDownload available globally
+    window.handleDownload = handleDownload;
+
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            const query = e.target.value.trim();
+            
+            if (query.length > 0) {
+                fetch(`/faculty/search-past-questions/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        updateTable(data.results);
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                // Reload the original table content
+                location.reload();
+            }
+        }, 300);
     });
-    </script>
+
+    function updateTable(results) {
+        tableBody.innerHTML = '';
+        results.forEach((pq, index) => {
+            const downloadButton = pq.has_images 
+                ? `<a href="/faculty/download-pastq-images/${pq.id}/" 
+                     class="download-btn" 
+                     onclick="return handleDownload(event, this)">Download</a>`
+                : '<span class="download-btn disabled">No Files</span>';
+
+            const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${pq.course_code}</td>
+                    <td>${pq.course_name}</td>
+                    <td>${pq.levels}</td>
+                    <td>${pq.semesters}</td>
+                    <td>${pq.year}</td>
+                    <td class="action-buttons">
+                        <a href="/faculty/view-past-question/${pq.id}/" 
+                           class="view-btn">View</a>
+                        ${downloadButton}
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+});
+</script>
 {% endblock content %}
